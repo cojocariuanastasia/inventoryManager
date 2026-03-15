@@ -64,10 +64,12 @@ app.get('/api/recommend-transfers', async (req, res) => {
   try {
     // 1. Fetch the raw data joining stores and stock
     const query = `
-      SELECT st.name AS store_name, sk.product_name, sk.delivered, sk.sold, 
-             (sk.delivered - sk.sold) AS remaining
-      FROM stock sk
-      JOIN stores st ON sk.store_id = st.id;
+      SELECT st.location AS store_name, pr.name AS product_name,
+             s.received_products AS delivered, s.sold_products AS sold,
+             (s.received_products - s.sold_products) AS remaining
+      FROM stock s
+      JOIN stores st ON s.id_store = st.id_store
+      JOIN products pr ON s.id_product = pr.id_product;
     `;
     const { rows } = await pool.query(query);
 
