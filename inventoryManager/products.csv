@@ -1,0 +1,51 @@
+id_product,name,category
+1,Wireless Earbuds,Electronics
+2,Bluetooth Speaker,Electronics
+3,4K Monitor,Electronics
+4,Mechanical Keyboard,Electronics
+5,Gaming Mouse,Electronics
+6,Laptop Stand,Electronics
+7,USB-C Hub,Electronics
+8,Smartphone Case,Electronics
+9,Power Bank,Electronics
+10,Smartwatch,Electronics
+11,Yoga Mat,Fitness
+12,Dumbbell Set,Fitness
+13,Resistance Bands,Fitness
+14,Jump Rope,Fitness
+15,Foam Roller,Fitness
+16,Protein Shaker,Fitness
+17,Treadmill,Fitness
+18,Stationary Bike,Fitness
+19,Kettlebell,Fitness
+20,Pull-up Bar,Fitness
+21,Coffee Maker,Home Appliances
+22,Air Fryer,Home Appliances
+23,Toaster Oven,Home Appliances
+24,Blender,Home Appliances
+25,Microwave,Home Appliances
+26,Vacuum Cleaner,Home Appliances
+27,Iron,Home Appliances
+28,Electric Kettle,Home Appliances
+29,Slow Cooker,Home Appliances
+30,Rice Cooker,Home Appliances
+31,Running Shoes,Footwear
+32,Hiking Boots,Footwear
+33,Sneakers,Footwear
+34,Sandals,Footwear
+35,Dress Shoes,Footwear
+36,Cotton T-Shirt,Clothing
+37,Jeans,Clothing
+38,Winter Jacket,Clothing
+39,Socks (6-Pack),Clothing
+40,Sweatpants,Clothing
+41,Desk Lamp,Furniture
+42,Office Chair,Furniture
+43,Bookshelf,Furniture
+44,Coffee Table,Furniture
+45,TV Stand,Furniture
+46,Shampoo,Personal Care
+47,Body Wash,Personal Care
+48,Toothpaste,Personal Care
+49,Electric Toothbrush,Personal Care
+50,Hair Dryer,Personal Care
