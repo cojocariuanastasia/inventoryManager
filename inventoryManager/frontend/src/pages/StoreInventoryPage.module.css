@@ -1,0 +1,492 @@
+.pageContainer {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 60px);
+  padding: 20px 24px 0;
+  font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+  overflow: hidden;
+}
+
+.header {
+  flex-shrink: 0;
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.title {
+  margin: 0;
+  white-space: nowrap;
+}
+
+.loadingText {
+  color: #94a3b8;
+}
+
+.errorText {
+  color: #f87171;
+}
+
+/* ── Filter bar ── */
+.filterBar {
+  display: flex;
+  gap: 6px;
+}
+
+.filterBtn,
+.filterBtnActive,
+.filterBtnCritical,
+.filterBtnCriticalActive,
+.filterBtnLow,
+.filterBtnLowActive,
+.filterBtnOk,
+.filterBtnOkActive {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid #2a2e3d;
+  background-color: #1a1d27;
+  color: #94a3b8;
+  transition: all 0.15s;
+  font-family: inherit;
+  white-space: nowrap;
+}
+
+.filterBtnActive {
+  background-color: #1e2235;
+  border-color: #60a5fa;
+  color: #60a5fa;
+}
+
+.filterBtnCritical:hover { border-color: #f87171; color: #f87171; }
+.filterBtnCriticalActive {
+  background-color: rgba(248, 113, 113, 0.1);
+  border-color: #f87171;
+  color: #f87171;
+}
+
+.filterBtnLow:hover { border-color: #fbbf24; color: #fbbf24; }
+.filterBtnLowActive {
+  background-color: rgba(251, 191, 36, 0.1);
+  border-color: #fbbf24;
+  color: #fbbf24;
+}
+
+.filterBtnOk:hover { border-color: #4ade80; color: #4ade80; }
+.filterBtnOkActive {
+  background-color: rgba(74, 222, 128, 0.1);
+  border-color: #4ade80;
+  color: #4ade80;
+}
+
+/* ── Main split layout ── */
+.mainLayout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 16px;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* ── Store list (left) ── */
+.storeListPanel {
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding-right: 4px;
+}
+
+.storeItem,
+.storeItemSelected {
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background-color 0.12s;
+  flex-shrink: 0;
+}
+
+.storeItem {
+  background-color: #1a1d27;
+}
+
+.storeItem:hover {
+  background-color: #1e2235;
+}
+
+.storeItemSelected {
+  background-color: rgba(96, 165, 250, 0.08);
+  border-color: #60a5fa;
+}
+
+.storeItemTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 4px;
+}
+
+.storeName {
+  font-weight: 600;
+  font-size: 13px;
+  color: #e2e8f0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusDot {
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.storeItemStats {
+  display: flex;
+  gap: 10px;
+  font-size: 11px;
+}
+
+.storeItemMuted {
+  color: #64748b;
+}
+
+.emptyList {
+  color: #64748b;
+  font-size: 13px;
+  padding: 20px 12px;
+  text-align: center;
+}
+
+/* ── Right panel ── */
+.tablePanel {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.emptyState {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+  color: #64748b;
+  font-size: 15px;
+}
+
+.selectedStoreHeading {
+  margin: 0 0 12px;
+  color: #e2e8f0;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.tableScroll {
+  flex: 1;
+  overflow-y: auto;
+  border-radius: 10px;
+  border: 1px solid #2a2e3d;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #1a1d27;
+}
+
+.th {
+  background-color: #1e2235;
+  color: #94a3b8;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 10px 14px;
+  border-bottom: 1px solid #2a2e3d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: sticky;
+  top: 0;
+  z-index: 1;
+}
+
+.td {
+  padding: 9px 14px;
+  border-bottom: 1px solid #1e2235;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+.productNameCell {
+  padding: 9px 14px;
+  border-bottom: 1px solid #1e2235;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #e2e8f0;
+  font-size: 13px;
+}
+
+.lowStockBadge {
+  background-color: rgba(248, 113, 113, 0.1);
+  color: #f87171;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(248, 113, 113, 0.3);
+  letter-spacing: 0.3px;
+  margin-left: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.lowStockBadge:hover {
+  background-color: rgba(248, 113, 113, 0.25);
+  border-color: rgba(248, 113, 113, 0.6);
+  transform: scale(1.05);
+}
+
+.highStrBadge {
+  background-color: rgba(251, 191, 36, 0.1);
+  color: #fbbf24;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 999px;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  letter-spacing: 0.3px;
+  margin-left: 4px;
+  cursor: pointer;
+  transition: background-color 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.highStrBadge:hover {
+  background-color: rgba(251, 191, 36, 0.25);
+  border-color: rgba(251, 191, 36, 0.6);
+  transform: scale(1.05);
+}
+
+.sellThroughWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sellThroughBarBackground {
+  flex: 1;
+  height: 6px;
+  background-color: #1e2235;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.sellThroughBar {
+  height: 100%;
+  border-radius: 3px;
+}
+
+.sellThroughValue {
+  font-size: 12px;
+  font-weight: 600;
+  color: #e2e8f0;
+  min-width: 32px;
+}
+
+.table tbody tr:nth-child(even) {
+  background-color: #161924;
+}
+
+.table tbody tr:hover {
+  background-color: #1e2235;
+}
+
+/* ── Supply Source Modal ── */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
+}
+
+.modalBox {
+  background-color: #1a1d27;
+  border-radius: 14px;
+  padding: 24px 28px;
+  min-width: 480px;
+  max-width: 660px;
+  width: 90%;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid #2a2e3d;
+  max-height: 70vh;
+  overflow-y: auto;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.modalTitle {
+  margin: 0;
+  font-size: 17px;
+  color: #e2e8f0;
+}
+
+.modalSubtitle {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.modalProduct {
+  color: #fbbf24;
+  font-weight: 600;
+}
+
+.modalCloseButton {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  color: #64748b;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.modalCloseButton:hover {
+  color: #e2e8f0;
+}
+
+.modalLoading {
+  color: #94a3b8;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.modalEmpty {
+  color: #64748b;
+  text-align: center;
+  padding: 20px 0;
+}
+
+.modalCostInfo {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 10px;
+  text-align: right;
+}
+
+.modalTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.modalTh {
+  background-color: #1e2235;
+  color: #94a3b8;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-bottom: 1px solid #2a2e3d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modalThCenter {
+  background-color: #1e2235;
+  color: #94a3b8;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 12px;
+  border-bottom: 1px solid #2a2e3d;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modalTd {
+  padding: 8px 12px;
+  border-bottom: 1px solid #1e2235;
+  font-size: 13px;
+  color: #e2e8f0;
+}
+
+.modalTdCenter {
+  padding: 8px 12px;
+  border-bottom: 1px solid #1e2235;
+  font-size: 13px;
+  text-align: center;
+  color: #94a3b8;
+}
+
+.modalTable tbody tr:nth-child(even) {
+  background-color: #161924;
+}
+
+.modalTable tbody tr:hover {
+  background-color: #1e2235;
+}
+
+.recommendedBadge {
+  display: inline-block;
+  margin-left: 6px;
+  background-color: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 1px 5px;
+  border-radius: 999px;
+  border: 1px solid rgba(74, 222, 128, 0.3);
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}
+
+.acceptSourceButton {
+  padding: 4px 12px;
+  background-color: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background-color 0.15s;
+}
+
+.acceptSourceButton:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.acceptSourceButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.acceptedBadge {
+  color: #4ade80;
+  font-size: 11px;
+  font-weight: 600;
+}
+
+.requestedBadge {
+  color: #fbbf24;
+  font-size: 11px;
+  font-weight: 600;
+}

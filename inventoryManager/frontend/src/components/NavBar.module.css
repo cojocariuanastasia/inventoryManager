@@ -1,0 +1,22 @@
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 32px;
+  height: 60px;
+  background-color: #12141c;
+  border-bottom: 1px solid #1e2235;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.4);
+  position: sticky;
+  top: 0;
+  z-index: 10000;
+  font-family: Segoe UI, Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.brand {
+  font-weight: 700;
+  font-size: 17px;
+  color: #e2e8f0;
+  margin-right: 20px;
+  letter-spacing: -0.3px;
+}

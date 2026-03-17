@@ -1,31 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-
-const pageStyle = {
-  padding: '24px',
-  fontFamily: 'Segoe UI, Tahoma, Geneva, Verdana, sans-serif',
-  maxWidth: '1000px',
-  margin: '0 auto',
-};
-
-const cardStyle = {
-  backgroundColor: '#fff',
-  borderRadius: '12px',
-  padding: '24px',
-  boxShadow: '0 4px 20px rgba(15,23,42,0.07)',
-  marginBottom: '24px',
-};
+import styles from './AnalyticsPage.module.css';
 
 function StatCard({ label, value, color }) {
   return (
-    <div style={{
-      backgroundColor: '#fff',
-      borderRadius: '12px',
-      padding: '20px 24px',
-      boxShadow: '0 4px 20px rgba(15,23,42,0.07)',
-      borderLeft: `4px solid ${color}`,
-    }}>
-      <div style={{ fontSize: '28px', fontWeight: 700, color: '#1e293b' }}>{value}</div>
-      <div style={{ fontSize: '14px', color: '#374151', marginTop: '4px' }}>{label}</div>
+    <div className={styles.statCard} style={{ borderLeft: `4px solid ${color}` }}>
+      <div className={styles.statValue}>{value}</div>
+      <div className={styles.statLabel}>{label}</div>
     </div>
   );
 }
@@ -33,32 +13,46 @@ function StatCard({ label, value, color }) {
 function BarChart({ data, labelKey, valueKey, color, title }) {
   const max = Math.max(...data.map((d) => d[valueKey]), 1);
   return (
-    <div style={cardStyle}>
-      <h3 style={{ margin: '0 0 20px', color: '#1e293b', fontSize: '16px' }}>{title}</h3>
-      {data.map((d, i) => (
-        <div key={i} style={{ marginBottom: '14px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-            <span style={{ fontSize: '13px', color: '#374151', fontWeight: 500 }}>{d[labelKey]}</span>
-            <span style={{ fontSize: '13px', color: '#6b7280', fontWeight: 600 }}>{d[valueKey]}</span>
+    <div className={styles.chartArea}>
+      <h3 className={styles.cardTitle}>{title}</h3>
+      {data.length === 0 && <p className={styles.emptyChart}>No data for current filters.</p>}
+      <div className={styles.chartScroll}>
+        {data.map((d, i) => (
+          <div key={i} className={styles.barRow}>
+            <div className={styles.barLabelRow}>
+              <span className={styles.barLabel}>{d[labelKey]}</span>
+              <span className={styles.barValue}>{d[valueKey]}</span>
+            </div>
+            <div className={styles.barBackground}>
+              <div className={styles.barFill} style={{
+                width: `${(d[valueKey] / max) * 100}%`,
+                backgroundColor: color,
+              }} />
+            </div>
           </div>
-          <div style={{ height: '10px', backgroundColor: '#f1f5f9', borderRadius: '5px', overflow: 'hidden' }}>
-            <div style={{
-              width: `${(d[valueKey] / max) * 100}%`,
-              height: '100%',
-              backgroundColor: color,
-              borderRadius: '5px',
-            }} />
-          </div>
-        </div>
-      ))}
+        ))}
+      </div>
     </div>
   );
 }
 
+const CHARTS = [
+  { key: 'soldByProduct', title: 'Units Sold by Product', color: '#3b82f6' },
+  { key: 'availableByStore', title: 'Available Inventory by Store', color: '#4ade80' },
+  { key: 'strByProduct', title: 'Sell-Through Rate by Product (%)', color: '#fbbf24' },
+  { key: 'transportByStore', title: 'Transport Cost by Store ($)', color: '#a78bfa' },
+];
+
 export default function AnalyticsPage() {
   const [allRows, setAllRows] = useState([]);
+  const [months, setMonths] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+
+  const [selectedMonth, setSelectedMonth] = useState('all');
+  const [selectedStore, setSelectedStore] = useState('all');
+  const [selectedProduct, setSelectedProduct] = useState('all');
+  const [selectedChart, setSelectedChart] = useState('soldByProduct');
 
   useEffect(() => {
     fetch('http://localhost:5000/api/inventory-stats?month=all')
@@ -66,20 +60,41 @@ export default function AnalyticsPage() {
         if (!r.ok) throw new Error('Failed to load analytics data');
         return r.json();
       })
-      .then((payload) => { setAllRows(payload.data || []); setLoading(false); })
+      .then((payload) => {
+        setAllRows(payload.data || []);
+        setMonths(payload.months || []);
+        setLoading(false);
+      })
       .catch((err) => { setError(err.message); setLoading(false); });
   }, []);
 
-  const { soldByProduct, availableByStore, strByProduct, totals } = useMemo(() => {
+  const storeNames = useMemo(() => {
+    return [...new Set(allRows.map(r => r.store_name))].sort();
+  }, [allRows]);
+
+  const productNames = useMemo(() => {
+    return [...new Set(allRows.map(r => r.product_name))].sort();
+  }, [allRows]);
+
+  const filteredRows = useMemo(() => {
+    return allRows.filter(row => {
+      if (selectedMonth !== 'all' && row.month !== selectedMonth) return false;
+      if (selectedStore !== 'all' && row.store_name !== selectedStore) return false;
+      if (selectedProduct !== 'all' && row.product_name !== selectedProduct) return false;
+      return true;
+    });
+  }, [allRows, selectedMonth, selectedStore, selectedProduct]);
+
+  const chartData = useMemo(() => {
     const productMap = {};
     const storeMap = {};
 
-    allRows.forEach((row) => {
+    filteredRows.forEach((row) => {
       if (!productMap[row.product_name]) productMap[row.product_name] = { sold: 0, delivered: 0 };
       productMap[row.product_name].sold += row.sold;
       productMap[row.product_name].delivered += row.delivered;
 
-      if (!storeMap[row.store_name]) storeMap[row.store_name] = { available: 0, sold: 0 };
+      if (!storeMap[row.store_name]) storeMap[row.store_name] = { available: 0, sold: 0, transport_cost: row.transport_cost || 0 };
       storeMap[row.store_name].available += row.available;
       storeMap[row.store_name].sold += row.sold;
     });
@@ -99,42 +114,114 @@ export default function AnalyticsPage() {
       }))
       .sort((a, b) => b.value - a.value);
 
-    const totalSold = allRows.reduce((s, r) => s + r.sold, 0);
-    const totalAvailable = allRows.reduce((s, r) => s + r.available, 0);
-    const totalDelivered = allRows.reduce((s, r) => s + r.delivered, 0);
+    const transportByStore = Object.entries(storeMap)
+      .map(([name, d]) => ({ label: name, value: Number(d.transport_cost) }))
+      .sort((a, b) => b.value - a.value);
+
+    const totalSold = filteredRows.reduce((s, r) => s + r.sold, 0);
+    const totalAvailable = filteredRows.reduce((s, r) => s + r.available, 0);
+    const totalDelivered = filteredRows.reduce((s, r) => s + r.delivered, 0);
     const overallStr = totalDelivered > 0 ? Math.round((totalSold / totalDelivered) * 100) : 0;
 
-    return { soldByProduct, availableByStore, strByProduct, totals: { totalSold, totalAvailable, totalDelivered, overallStr } };
-  }, [allRows]);
+    return {
+      soldByProduct,
+      availableByStore,
+      strByProduct,
+      transportByStore,
+      totals: { totalSold, totalAvailable, totalDelivered, overallStr },
+    };
+  }, [filteredRows]);
+
+  const hasActiveFilters = selectedMonth !== 'all' || selectedStore !== 'all' || selectedProduct !== 'all';
+  const activeChart = CHARTS.find(c => c.key === selectedChart) || CHARTS[0];
 
   return (
-    <div style={pageStyle}>
-      <h1 style={{ marginBottom: '30px' }}>Analytics</h1>
-      <p style={{ margin: '0 0 32px', color: '#4b5563' }}>
-        Inventory performance metrics across all stores and products.
-      </p>
+    <div className={styles.pageContainer}>
+      <div className={styles.header}>
+        <h1 className={styles.title}>Analytics</h1>
+      </div>
+
+      <div className={styles.filterBar}>
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Month</label>
+          <select
+            className={styles.filterSelect}
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(e.target.value)}
+          >
+            <option value="all">All Months</option>
+            {months.map(m => <option key={m} value={m}>{m}</option>)}
+          </select>
+        </div>
+
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Store</label>
+          <select
+            className={styles.filterSelect}
+            value={selectedStore}
+            onChange={(e) => setSelectedStore(e.target.value)}
+          >
+            <option value="all">All Stores</option>
+            {storeNames.map(s => <option key={s} value={s}>{s}</option>)}
+          </select>
+        </div>
+
+        <div className={styles.filterGroup}>
+          <label className={styles.filterLabel}>Product</label>
+          <select
+            className={styles.filterSelect}
+            value={selectedProduct}
+            onChange={(e) => setSelectedProduct(e.target.value)}
+          >
+            <option value="all">All Products</option>
+            {productNames.map(p => <option key={p} value={p}>{p}</option>)}
+          </select>
+        </div>
+
+        {hasActiveFilters && (
+          <button
+            className={styles.clearFilters}
+            onClick={() => { setSelectedMonth('all'); setSelectedStore('all'); setSelectedProduct('all'); }}
+          >
+            Clear Filters
+          </button>
+        )}
+      </div>
 
       {loading && <p>Loading analytics...</p>}
-      {error && !loading && <p style={{ color: '#dc2626' }}>{error}</p>}
+      {error && !loading && <p className={styles.errorText}>{error}</p>}
 
       {!loading && !error && (
-        <>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-            gap: '16px',
-            marginBottom: '32px',
-          }}>
-            <StatCard label="Total Units Sold" value={totals.totalSold} color="#3b82f6" />
-            <StatCard label="Total Available" value={totals.totalAvailable} color="#16a34a" />
-            <StatCard label="Total Delivered" value={totals.totalDelivered} color="#8b5cf6" />
-            <StatCard label="Overall Sell-Through" value={`${totals.overallStr}%`} color="#f59e0b" />
+        <div className={styles.content}>
+          <div className={styles.statsGrid}>
+            <StatCard label="Total Units Sold" value={chartData.totals.totalSold} color="#3b82f6" />
+            <StatCard label="Total Available" value={chartData.totals.totalAvailable} color="#4ade80" />
+            <StatCard label="Total Delivered" value={chartData.totals.totalDelivered} color="#8b5cf6" />
+            <StatCard label="Overall Sell-Through" value={`${chartData.totals.overallStr}%`} color="#fbbf24" />
           </div>
 
-          <BarChart data={soldByProduct} labelKey="label" valueKey="value" color="#3b82f6" title="Units Sold by Product" />
-          <BarChart data={availableByStore} labelKey="label" valueKey="value" color="#16a34a" title="Available Inventory by Store" />
-          <BarChart data={strByProduct} labelKey="label" valueKey="value" color="#f59e0b" title="Sell-Through Rate by Product (%)" />
-        </>
+          <div className={styles.chartSection}>
+            <div className={styles.chartHeader}>
+              <select
+                className={styles.chartSelect}
+                value={selectedChart}
+                onChange={(e) => setSelectedChart(e.target.value)}
+              >
+                {CHARTS.map(c => (
+                  <option key={c.key} value={c.key}>{c.title}</option>
+                ))}
+              </select>
+            </div>
+
+            <BarChart
+              data={chartData[activeChart.key]}
+              labelKey="label"
+              valueKey="value"
+              color={activeChart.color}
+              title={activeChart.title}
+            />
+          </div>
+        </div>
       )}
     </div>
   );
